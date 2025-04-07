@@ -1,0 +1,10 @@
+# Ignore virtual environment
+myenv/
+
+# Ignore Python bytecode
+__pycache__/
+
+# Ignore Chroma DB directory
+chroma_db/
+
+.env
