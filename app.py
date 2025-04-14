@@ -1,4 +1,7 @@
 import os
+import sys
+__import__('pysqlite3')
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 from langchain_google_genai import GoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
@@ -103,10 +106,13 @@ if __name__ == "__main__":
     file_path = "Finished" 
     query = st.text_input("Ask a question (or type 'exit' to quit): ", key="query_input")
     
-    if st.button("Submit", key="submit_button"):
+    if st.button("Submit", key="submit_button" and query != "exit"):
         docs = load_documents(file_path) 
         add_docs_to_chroma(docs)
-        
+    elif  query == "exit":
+        vector_db.delete_collection()
+        st.write("Session ended. Database cleared.")
+
     
     if query and query.lower() != 'exit':
         answer = ask_gemini(query, k=num_chunks)
@@ -119,3 +125,4 @@ if __name__ == "__main__":
         vector_db.delete_collection()
         st.write("Session ended. Database cleared.")
         
+

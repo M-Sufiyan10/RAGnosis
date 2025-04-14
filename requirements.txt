@@ -3,3 +3,5 @@ langchain-chroma
 langchain-community
 together
 streamlit
+pysqlite3
+pysqlite3-binary
