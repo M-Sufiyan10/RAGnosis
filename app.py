@@ -15,7 +15,6 @@ import time
 load_dotenv()
 from together import Together
 
-load_dotenv()
 # Set up API keys
 
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
