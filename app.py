@@ -4,17 +4,13 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import os
 from langchain_google_genai import GoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_chroma import Chroma
 from data_cleaning import load_documents,prepare_documents_with_metadata
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from dotenv import load_dotenv
-from langchain_community.llms import Together
 import streamlit as st 
 from langchain_community.vectorstores import FAISS
-import time
 load_dotenv()
-from together import Together
 
 # Set up API keys
 
