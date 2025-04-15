@@ -11,6 +11,7 @@ from langchain.schema import Document
 from dotenv import load_dotenv
 from langchain_community.llms import Together
 import streamlit as st 
+from langchain_community.vectorstores import FAISS
 import time
 load_dotenv()
 from together import Together
@@ -21,9 +22,10 @@ GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 if GOOGLE_API_KEY is None:
     raise ValueError("Gemini api key not found!!")
 os.environ["GOOGLE_API_KEY"]=GOOGLE_API_KEY
+print(GOOGLE_API_KEY)
 
-embedding_function = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
-vector_db = Chroma(persist_directory="./chroma_db", embedding_function=embedding_function)
+embedding_function = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", api_key=GOOGLE_API_KEY)
+vector_db = None
     
 # Initialize LangChain ChromaDB with Google Embeddings
 st.sidebar.title("Settings")
@@ -57,23 +59,41 @@ def chunk_documents(docs_with_meta, chunk_size=chunk_size,
     return chunked_docs
 
 
-def add_docs_to_chroma(docs):
-    """Processes a PDF file, splits it into chunks, and adds them to ChromaDB."""
-    metadata_docs=prepare_documents_with_metadata(docs)
-    time.sleep(15)
-    st.write("The process usualyy takes time")
+def add_docs_to_faiss(docs):
+    """Processes a PDF file, splits it into chunks, embeds them, and adds to FAISS."""
+    global vector_db
+    metadata_docs = prepare_documents_with_metadata(docs)
+    
+    st.write("The process usually takes time")
+
+    # Chunking
     documents = chunk_documents(metadata_docs)
-    time.sleep(40)
-    st.write("Hang on a minute")
-    vector_db.add_documents(documents)
-    time.sleep(20)
-    st.write("Almost there")
-    print(f"Added {len(documents)} chunks to ChromaDB.")
+    texts = [doc.page_content for doc in documents]
+    embeddings=embedding_function.embed_documents(texts)
+    embeddings_pairs=zip(texts,embeddings)
+    # Let FAISS handle embeddings internally
+    st.session_state.vector_db = FAISS.from_embeddings(embeddings_pairs,embedding_function
+    )
+    print(f"Added {len(documents)} chunks to FAISS DB.")
+
+
+# def add_docs_to_chroma(docs):
+#     """Processes a PDF file, splits it into chunks, and adds them to ChromaDB."""
+#     metadata_docs=prepare_documents_with_metadata(docs)
+#     time.sleep(15)
+#     st.write("The process usually takes time")
+#     documents = chunk_documents(metadata_docs)
+#     texts=[doc.page_content for doc in documents]
+#     metadatas=[doc.metadata for doc in documents]
+#     embeddings=embedding_function.embed_documents(texts)
+#     vector_db.add_texts(texts,embeddings,metadatas)
+#     print(f"Added {len(documents)} chunks to ChromaDB.")
 
 def ask_gemini(query, k=3):
-    """Uses Gemini 2.0 Flash to answer a query based on retrieved context."""
+    """Uses Gemini 1.5 Flash to answer a query based on retrieved context."""
     query_vector = embedding_function.embed_query(query)
-    docs = vector_db.similarity_search_by_vector_with_relevance_scores(query_vector, k=k)
+    vector_db = st.session_state.vector_db
+    docs = vector_db.similarity_search_with_score_by_vector(query_vector, k=k)
     
     # Combine retrieved documents into context
     context = "".join([doc[0].page_content for doc in docs])
@@ -99,29 +119,49 @@ def ask_gemini(query, k=3):
     response = llm.invoke(prompt)
     
     return response
+
+
 # Example Usage
 if __name__ == "__main__":
     st.title("AI RAGNOSIS")
-    file_path = "Finished" 
-    query = st.text_input("Ask a question (or type 'exit' to quit): ", key="query_input")
     
-    if st.button("Submit", key="submit_button" and query != "exit"):
-        docs = load_documents(file_path) 
-        add_docs_to_chroma(docs)
-    elif  query == "exit":
-        vector_db.delete_collection()
-        st.write("Session ended. Database cleared.")
+# Load and embed documents once
+    if "vector_db_initialized" not in st.session_state:
+        st.write("Wait a few minutes while the system loads the documents...")
+        docs = load_documents("Finished")
+        add_docs_to_faiss(docs)
+        st.session_state.vector_db_initialized = True
+        st.success("Documents loaded and embedded successfully!")
 
-    
-    if query and query.lower() != 'exit':
-        answer = ask_gemini(query, k=num_chunks)
-        st.header("AI RESPONSE")
-        st.write(answer)
+    # Accept user query input
+    query = st.text_input("Ask a question:", key="query_input")
+
+    # Process query
+    if query:
+        if query.lower() == "exit":
+            vector_db.delete()
+            st.session_state.vector_db_initialized = False
+            st.write("Session ended. Vector DB cleared.")
+        else:
+            answer = ask_gemini(query, k=num_chunks)
+            st.header("AI RESPONSE")
+            st.write(answer)
+
+#     st.title("AI RAGNOSIS")
+#     file_path = "Finished" 
+#     st.write("wait few minutes while system loads the documents")
+#     docs = load_documents(file_path) 
+#     add_docs_to_faiss(docs)
+#     query = st.text_input("Ask a question (or type 'exit' to quit):", key=f"query_input_{time.time()}")
+#     while True:
         
-        if st.button("Clear", key="clear_button"):
-            st.rerun()
-    elif query and query.lower() == 'exit':
-        vector_db.delete_collection()
-        st.write("Session ended. Database cleared.")
+#         if query and query.lower() != 'exit':
+#             answer = ask_gemini(query, k=num_chunks)
+#             st.header("AI RESPONSE")
+#             st.write(answer)
+#         # elif query and query.lower() == 'exit':
+#         #     vector_db.delete_collection()
+#         #     st.write("Session ended. Database cleared.")
+#         #     break
         
 

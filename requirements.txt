@@ -1,6 +1,6 @@
 langchain-google-genai
-langchain-chroma
 langchain-community
 together
 streamlit
 pysqlite3-binary
+faiss-cpu
