@@ -14,10 +14,7 @@ load_dotenv()
 
 # Set up API keys
 
-GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
-if GOOGLE_API_KEY is None:
-    raise ValueError("Gemini api key not found!!")
-os.environ["GOOGLE_API_KEY"]=GOOGLE_API_KEY
+GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
 print(GOOGLE_API_KEY)
 
 embedding_function = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", api_key=GOOGLE_API_KEY)
