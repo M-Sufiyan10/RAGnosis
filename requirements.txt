@@ -1,6 +1,5 @@
 langchain-google-genai
 langchain-community
-together
 streamlit
 faiss-cpu
 pysqlite3
