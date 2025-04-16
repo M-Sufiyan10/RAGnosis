@@ -4,17 +4,24 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import os
 from langchain_google_genai import GoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_chroma import Chroma
 from data_cleaning import load_documents,prepare_documents_with_metadata
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from dotenv import load_dotenv
+from langchain_community.llms import Together
 import streamlit as st 
 from langchain_community.vectorstores import FAISS
+import time
 load_dotenv()
+from together import Together
 
 # Set up API keys
 
-GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
+GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
+if GOOGLE_API_KEY is None:
+    raise ValueError("Gemini api key not found!!")
+os.environ["GOOGLE_API_KEY"]=GOOGLE_API_KEY
 print(GOOGLE_API_KEY)
 
 embedding_function = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", api_key=GOOGLE_API_KEY)
@@ -69,18 +76,6 @@ def add_docs_to_faiss(docs):
     )
     print(f"Added {len(documents)} chunks to FAISS DB.")
 
-
-# def add_docs_to_chroma(docs):
-#     """Processes a PDF file, splits it into chunks, and adds them to ChromaDB."""
-#     metadata_docs=prepare_documents_with_metadata(docs)
-#     time.sleep(15)
-#     st.write("The process usually takes time")
-#     documents = chunk_documents(metadata_docs)
-#     texts=[doc.page_content for doc in documents]
-#     metadatas=[doc.metadata for doc in documents]
-#     embeddings=embedding_function.embed_documents(texts)
-#     vector_db.add_texts(texts,embeddings,metadatas)
-#     print(f"Added {len(documents)} chunks to ChromaDB.")
 
 def ask_gemini(query, k=3):
     """Uses Gemini 1.5 Flash to answer a query based on retrieved context."""
