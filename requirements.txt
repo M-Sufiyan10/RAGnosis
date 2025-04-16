@@ -2,4 +2,4 @@ langchain-google-genai
 langchain-community
 streamlit
 faiss-cpu
-pysqlite3
+pysqlite3-binary
