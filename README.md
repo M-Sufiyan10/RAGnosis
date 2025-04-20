@@ -34,3 +34,17 @@ pip install -r requirements.txt
 ### 3. run the following command
 ```bash
 streamlit run app.py
+```
+🧠 Tech Stack
+
+    Python
+
+    FAISS for vector similarity search
+
+    Google Generative AI Embeddings
+
+    Gemini 1.5 Flash as the response generator
+
+    Streamlit for the frontend
+
+    MIMIC clinical dataset (preprocessed)
