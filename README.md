@@ -20,9 +20,17 @@
 ```bash
 git clone https://github.com/your-username/RAGnosis.git
 cd RAGnosis
+```
 
+### 2. Visit Google Studio AI and create your API key
+setup your key in dotenv file.
+```bash
 GEMINI_API_KEY=your_api_key_here
-
+```
+### 3. Install required Libraries
+```bash
 pip install -r requirements.txt
-
+```
+### 3. run the following command
+```bash
 streamlit run app.py
