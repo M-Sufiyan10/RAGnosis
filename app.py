@@ -64,13 +64,14 @@ def add_docs_to_faiss(docs):
 
     # Chunking
     documents = chunk_documents(metadata_docs)
+    st.success("successfully chunked documents")
     texts = [doc.page_content for doc in documents]
     embeddings=embedding_function.embed_documents(texts)
     embeddings_pairs=zip(texts,embeddings)
     # Let FAISS handle embeddings internally
     st.session_state.vector_db = FAISS.from_embeddings(embeddings_pairs,embedding_function
     )
-    print(f"Added {len(documents)} chunks to FAISS DB.")
+    st.success(f"Added {len(documents)} chunks to FAISS DB each of 768 dimensions")
 
 
 def ask_gemini(query, k=3):
@@ -115,7 +116,6 @@ if __name__ == "__main__":
 
     # Accept user query input
     query = st.text_input("Ask a question:", key="query_input")
-
     # Process query
     if query:
         if query.lower() == "exit":
@@ -127,21 +127,5 @@ if __name__ == "__main__":
             st.header("AI RESPONSE")
             st.write(answer)
 
-#     st.title("AI RAGNOSIS")
-#     file_path = "Finished" 
-#     st.write("wait few minutes while system loads the documents")
-#     docs = load_documents(file_path) 
-#     add_docs_to_faiss(docs)
-#     query = st.text_input("Ask a question (or type 'exit' to quit):", key=f"query_input_{time.time()}")
-#     while True:
-        
-#         if query and query.lower() != 'exit':
-#             answer = ask_gemini(query, k=num_chunks)
-#             st.header("AI RESPONSE")
-#             st.write(answer)
-#         # elif query and query.lower() == 'exit':
-#         #     vector_db.delete_collection()
-#         #     st.write("Session ended. Database cleared.")
-#         #     break
-        
 
+        
