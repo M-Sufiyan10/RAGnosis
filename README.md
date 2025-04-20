@@ -1,14 +1,28 @@
-# RAGnosis
-An Ai RAG system that leverage the power of the external knowledge to enhance the contextual information of LLM
+# 🧠 RAGnosis
 
-## Instructions
-1. Clone the REPO using git clone 
-1. create a DOT env file
-2. Visit Google Studio AI and create your Gemini 1.5 api key.
-3. save your api key in dotenv file GEMINI_API_KEY=your_api_key
-4. use this command pip install -r requirements.txt
-5. run the following command streamlit run app.py
+**RAGnosis** is a Retrieval-Augmented Generation (RAG) system that enhances the contextual understanding of Large Language Models (LLMs) by integrating **external medical knowledge** from the MIMIC dataset. It uses advanced embedding techniques, semantic search, and a generative model to answer clinical queries more accurately.
 
+---
 
+## ✅ Features
 
+- 💡 Uses **Google Generative AI Embeddings** to represent text semantically.
+- 🔎 Retrieves top-**k** relevant document chunks using **FAISS**.
+- 🤖 Generates precise, context-based responses using **Gemini 1.5 Flash**.
+- ⚙️ Chunking size, overlap, and top-**k** retrieval are fully configurable.
+- 🖥️ Built with an interactive UI using **Streamlit**.
 
+---
+
+## 📦 Setup Instructions
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-username/RAGnosis.git
+cd RAGnosis
+
+GEMINI_API_KEY=your_api_key_here
+
+pip install -r requirements.txt
+
+streamlit run app.py
